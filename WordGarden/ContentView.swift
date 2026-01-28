@@ -12,8 +12,11 @@ struct ContentView: View {
   @State private var wordsGuesses: Int = 0
   @State private var WordsMissed: Int = 0
   @State private var gameStatusMessage: String = "How Many Guesses to Uncover the Hidden Word?"
-  @State private var currentWord: Int = 0 // Index of wordsToGuess array
+  @State private var currentWordIndex: Int = 0 // Index of wordsToGuess array
+  @State private var wordToGuess: String = ""
+  @State private var revealedWord: String = ""
   @State private var guessedLetter: String = ""
+  @State private var lettersGuessed:String = ""
   @State private var imageName: String = "flower8"
   @State private var playAgainIsHidden: Bool = true
   @FocusState private var textFieldIsFocussed: Bool
@@ -51,7 +54,7 @@ struct ContentView: View {
         .multilineTextAlignment(.center)
         .padding()
       
-      Text("_ _ _ _ _")
+      Text(revealedWord)
         .font(.title)
         .multilineTextAlignment(.center)
       
@@ -68,7 +71,6 @@ struct ContentView: View {
             .keyboardType(.asciiCapable)
             .submitLabel(.done)
             .autocorrectionDisabled(true)
-//            .textInputAutocapitalization(.characters)
             .onChange(of: guessedLetter) {
               guessedLetter = guessedLetter.trimmingCharacters(in: .letters.inverted)
               guard let lastChar = guessedLetter.last else {
@@ -77,10 +79,18 @@ struct ContentView: View {
               guessedLetter = String(lastChar).uppercased()
             }
             .focused($textFieldIsFocussed)
-         
+            .onSubmit {
+              // As long as guessedLetter is not empty we can continue otherwise, dont do anythiong
+              guard guessedLetter.isEmpty == false else {
+                return
+              }
+              guessALetter()
+            }
+          
           Button {
             // Guess Action
-            textFieldIsFocussed = false
+            guessALetter()
+            
           } label: {
             Text("Guess A Letter")
               .font(.title3)
@@ -111,7 +121,27 @@ struct ContentView: View {
         .resizable()
         .scaledToFit()
     }
-    .ignoresSafeArea(edges: .bottom)  }
+    .ignoresSafeArea(edges: .bottom)
+    .onAppear() {
+      currentWordIndex = Int.random(in: 0..<wordsToGuess.count)
+      wordToGuess = wordsToGuess[currentWordIndex]
+      revealedWord = "_" + String(repeating: " _", count: wordToGuess.count-1)
+      
+    }
+  }
+  
+  func guessALetter() {
+    textFieldIsFocussed = false
+    lettersGuessed += guessedLetter
+    
+    revealedWord = wordToGuess.map { letter in
+      lettersGuessed.contains(letter) ? "\(letter)" : "_"
+    }.joined(separator: " ")
+    
+    guessedLetter = ""
+    textFieldIsFocussed = true
+  }
+  
 }
 
 
