@@ -8,17 +8,110 @@
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+  
+  @State private var wordsGuesses: Int = 0
+  @State private var WordsMissed: Int = 0
+  @State private var gameStatusMessage: String = "How Many Guesses to Uncover the Hidden Word?"
+  @State private var currentWord: Int = 0 // Index of wordsToGuess array
+  @State private var guessedLetter: String = ""
+  @State private var imageName: String = "flower8"
+  @State private var playAgainIsHedden: Bool = true
+  
+  @State private var  wordsToGuess: [String] = [
+    "SWIFT",
+    "DOG",
+    "CAT",
+    "HOUSE",
+    "WORLD"
+  ] // All caps
+  
+  var body: some View {
+    VStack {
+      
+      HStack {
+        VStack(alignment: .leading) {
+          Text("Words Guessed: \(wordsGuesses)")
+          Text("Words Missed: \(WordsMissed)")
         }
+        
+        Spacer()
+        
+        VStack(alignment: .trailing) {
+          Text("Words To Guess: \(wordsToGuess.count - (wordsGuesses + WordsMissed))")
+          Text("Words in Game: \(wordsToGuess.count)")
+        }
+      }
+      .padding(.horizontal, 20)
+      
+      Spacer()
+      
+      Text(gameStatusMessage)
+        .font(.title)
+        .multilineTextAlignment(.center)
         .padding()
+      
+      Text("_ _ _ _ _")
+        .font(.title)
+        .multilineTextAlignment(.center)
+      
+      if playAgainIsHedden {
+        HStack {
+          TextField("", text: $guessedLetter)
+            .textFieldStyle(.roundedBorder)
+            .frame(width: 35)
+            .overlay {
+              RoundedRectangle(cornerRadius: 5)
+                .stroke(.gray, lineWidth: 2)
+            }
+          
+          Button {
+            // Guess Action
+            playAgainIsHedden = false
+          } label: {
+            Text("Guess A Letter")
+              .font(.title3)
+              .foregroundStyle(.blue)
+              .fontWeight(.bold)
+          }
+          .buttonStyle(.bordered)
+          .tint(.mint)
+        }
+      } else {
+        
+        Button {
+          // Play Again Action
+          playAgainIsHedden = true
+
+        } label: {
+          Text("Play Again?")
+            .font(.title3)
+            .foregroundStyle(.blue)
+            .fontWeight(.bold)
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.mint)
+      }
+      
+      Spacer()
+      
+      Image(imageName)
+        .resizable()
+        .scaledToFit()
     }
+    .ignoresSafeArea(edges: .bottom)  }
 }
 
-#Preview {
-    ContentView()
+
+
+
+
+
+#Preview("Light Mode") {
+  ContentView()
+    .preferredColorScheme(ColorScheme.light)
+}
+
+#Preview("Dark Mode") {
+  ContentView()
+    .preferredColorScheme(ColorScheme.dark)
 }
